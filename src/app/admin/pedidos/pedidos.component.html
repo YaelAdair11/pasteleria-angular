@@ -106,28 +106,30 @@
 
           <!-- Acciones CORREGIDAS -->
           <div class="col-md-3">
-            <div class="btn-group w-100">
-              <button 
-                class="btn btn-outline-primary btn-sm dropdown-toggle" 
-                type="button" 
-                data-bs-toggle="dropdown" 
-                aria-expanded="false">
-                Cambiar Estado
-              </button>
-              <ul class="dropdown-menu">
-                <li *ngFor="let estado of estados">
-                  <a class="dropdown-item" 
-                     href="javascript:void(0)" 
-                     (click)="actualizarEstado(pedido.id, estado.valor)">
-                    {{estado.label}}
-                  </a>
-                </li>
-              </ul>
+            <div class="d-flex gap-2">
+              <!-- Dropdown para cambiar estado -->
+              <div class="dropdown">
+                <button class="btn btn-outline-primary btn-sm dropdown-toggle" 
+                        type="button" 
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false">
+                  Cambiar Estado
+                </button>
+                <ul class="dropdown-menu">
+                  <li *ngFor="let estado of estados">
+                    <a class="dropdown-item" 
+                       href="javascript:void(0)" 
+                       (click)="actualizarEstado(pedido.id, estado.valor)">
+                      {{estado.label}}
+                    </a>
+                  </li>
+                </ul>
+              </div>
               
-              <button 
-                class="btn btn-outline-danger btn-sm"
-                (click)="eliminarPedido(pedido.id)"
-                title="Eliminar pedido">
+              <!-- Botón de eliminar -->
+              <button class="btn btn-outline-danger btn-sm"
+                      (click)="eliminarPedido(pedido.id)"
+                      title="Eliminar pedido">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
