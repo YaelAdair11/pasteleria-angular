@@ -87,6 +87,16 @@
           }
         </a>
       </li>
+      <!-- ✅ NUEVO: CONFIGURACIÓN TIENDA -->
+      <li class="nav-item mb-1">
+        <a routerLink="configuracion-tienda" routerLinkActive="active" class="nav-link text-light" [ngClass]="{'px-2': !sidebarVisible}">
+          <i class="fa-solid fa-store"></i>
+          @if (sidebarVisible) {
+            <span class="ms-2">Configuración Tienda</span>
+          }
+        </a>
+      </li>
+      <!-- FIN CONFIGURACIÓN TIENDA -->
     </ul>
     <div class="mt-auto px-1 pb-3">
       <button (click)="logout()" class="btn btn-outline-danger w-100" [ngClass]="{'px-2': !sidebarVisible}">

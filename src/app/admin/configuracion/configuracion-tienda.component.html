@@ -1,0 +1,189 @@
+<!-- src/app/components/configuracion-tienda/configuracion-tienda.component.html -->
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center py-3">
+          <div>
+            <h5 class="fw-semibold mb-1">Configuración de la Tienda</h5>
+            <p class="text-muted mb-0">Datos que aparecen en los tickets de venta</p>
+          </div>
+          <span class="badge bg-info">Solo Admin/Gerente</span>
+        </div>
+        
+        <div class="card-body">
+          <!-- Mensaje de éxito -->
+          <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i>
+            {{mensajeExito}}
+            <button type="button" class="btn-close" (click)="mensajeExito = ''"></button>
+          </div>
+          
+          <!-- Loading -->
+          <div *ngIf="loading" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2 text-muted">Cargando configuración...</p>
+          </div>
+          
+          <!-- Formulario -->
+          <form *ngIf="!loading" (ngSubmit)="guardarConfiguracion()" #configForm="ngForm">
+            <div class="row g-3">
+              
+              <!-- Nombre Tienda -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Nombre de la Tienda <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" 
+                       [(ngModel)]="config.nombre_tienda" 
+                       name="nombre_tienda" 
+                       required
+                       placeholder="Ej: Pastelería Delicias">
+                <small class="text-muted">Aparece en la cabecera del ticket</small>
+              </div>
+              
+              <!-- Teléfono -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Teléfono</label>
+                <input type="text" class="form-control" 
+                       [(ngModel)]="config.telefono" 
+                       name="telefono"
+                       placeholder="Ej: 555-123-4567">
+              </div>
+              
+              <!-- Dirección -->
+              <div class="col-12">
+                <label class="form-label fw-semibold">Dirección</label>
+                <textarea class="form-control" rows="2"
+                          [(ngModel)]="config.direccion" 
+                          name="direccion"
+                          placeholder="Dirección completa de la tienda"></textarea>
+              </div>
+              
+              <!-- RFC -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">RFC</label>
+                <input type="text" class="form-control" 
+                       [(ngModel)]="config.rfc" 
+                       name="rfc"
+                       placeholder="Ej: XAXX010101000">
+                <small class="text-muted">Para facturación</small>
+              </div>
+              
+              <!-- Lema -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Lema o Eslogan</label>
+                <input type="text" class="form-control" 
+                       [(ngModel)]="config.lema" 
+                       name="lema"
+                       placeholder="Ej: Los mejores pasteles de la ciudad">
+              </div>
+              
+              <!-- Mensaje Ticket -->
+              <div class="col-12">
+                <label class="form-label fw-semibold">Mensaje en Ticket</label>
+                <textarea class="form-control" rows="3"
+                          [(ngModel)]="config.mensaje_ticket" 
+                          name="mensaje_ticket"
+                          placeholder="Mensaje que aparece al final del ticket (Ej: ¡Gracias por su compra! Vuelva pronto.)"></textarea>
+                <small class="text-muted">Este mensaje aparecerá al final de cada ticket</small>
+              </div>
+              
+              <!-- Botones -->
+              <div class="col-12 mt-4 pt-3 border-top">
+                <button type="submit" class="btn btn-primary" [disabled]="guardando || !configForm.form.valid">
+                  <i class="fas" [class.fa-save]="!guardando" [class.fa-spinner]="guardando" [class.fa-spin]="guardando"></i>
+                  {{guardando ? ' Guardando...' : ' Guardar Cambios'}}
+                </button>
+                
+                <button type="button" class="btn btn-outline-info ms-2" 
+                        (click)="previsualizarTicket()">
+                  <i class="fas fa-receipt me-1"></i>
+                  {{mostrarPrevia ? 'Ocultar Vista Previa' : 'Ver Vista Previa'}}
+                </button>
+                
+                <button type="button" class="btn btn-outline-secondary ms-2" 
+                        (click)="cargarConfiguracion()">
+                  <i class="fas fa-undo me-1"></i>
+                  Cancelar Cambios
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Vista Previa del Ticket -->
+    <div class="col-lg-4" *ngIf="mostrarPrevia && !loading">
+      <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">
+        <div class="card-header bg-transparent border-0 py-3">
+          <h5 class="fw-semibold mb-0">Vista Previa del Ticket</h5>
+        </div>
+        <div class="card-body">
+          <div class="ticket-preview border p-3 bg-white" 
+               style="font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.2;">
+            
+            <!-- Cabecera -->
+            <div class="text-center mb-2">
+              <div class="fw-bold" style="font-size: 14px;">{{config.nombre_tienda}}</div>
+              <div>{{config.direccion}}</div>
+              <div>Tel: {{config.telefono}}</div>
+              <div *ngIf="config.rfc">RFC: {{config.rfc}}</div>
+              <div *ngIf="config.lema" class="fst-italic mt-1">{{config.lema}}</div>
+            </div>
+            
+            <hr style="border-top: 1px dashed #000; margin: 8px 0;">
+            
+            <!-- Ejemplo de venta -->
+            <div class="mb-2">
+              <div class="text-center fw-bold">TICKET DE VENTA</div>
+              <div class="text-center">Fecha: {{today | date:'dd/MM/yyyy HH:mm'}}</div>
+            </div>
+            
+            <hr style="border-top: 1px dashed #000; margin: 8px 0;">
+            
+            <div class="mb-1">
+              <div class="d-flex justify-content-between">
+                <span>1 x Pastel Chocolate</span>
+                <span>$350.00</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>2 x Galletas</span>
+                <span>$60.00</span>
+              </div>
+            </div>
+            
+            <hr style="border-top: 1px dashed #000; margin: 8px 0;">
+            
+            <!-- Total -->
+            <div class="mb-2">
+              <div class="d-flex justify-content-between fw-bold">
+                <span>TOTAL:</span>
+                <span>$410.00</span>
+              </div>
+            </div>
+            
+            <hr style="border-top: 1px dashed #000; margin: 8px 0;">
+            
+            <!-- Mensaje final -->
+            <div class="text-center mt-2" style="font-size: 11px;">
+              {{config.mensaje_ticket || '¡Gracias por su compra!'}}
+            </div>
+            
+            <div class="text-center mt-3">
+              <small class="text-muted">* Vista previa de ejemplo *</small>
+            </div>
+          </div>
+          
+          <div class="mt-3 text-center">
+            <small class="text-muted">
+              <i class="fas fa-info-circle me-1"></i>
+              Estos datos aparecerán en todos los tickets impresos
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

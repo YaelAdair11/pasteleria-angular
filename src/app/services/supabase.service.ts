@@ -7,7 +7,8 @@ import { Usuario } from '../models/usuario.model';
 import { Producto } from '../models/producto.model';
 import { productosMasVendidos } from '../models/venta.model';
 import { Solicitud } from '../models/solicitud.model';
-import { VentaPendiente } from '../models/venta-pendiente.model'; // Importar nueva interfaz
+import { VentaPendiente } from '../models/venta-pendiente.model';
+import { ConfiguracionTienda } from '../models/configuracion.model';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
@@ -1061,4 +1062,59 @@ console.log('✅ Respuesta de anulación:', dataAnulacion);
     throw error;
   }
 }
+
+// =================== CONFIGURACIÓN TIENDA ===================
+async getConfiguracionTienda(): Promise<ConfiguracionTienda> {
+  try {
+    const { data, error } = await this.supabase
+      .from('configuracion_tienda')
+      .select('*')
+      .limit(1)
+      .single();
+    
+    if (error) {
+      console.warn('No hay configuración de tienda, usando valores por defecto');
+      return this.getConfiguracionPorDefecto();
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error obteniendo configuración de tienda:', error);
+    return this.getConfiguracionPorDefecto();
+  }
+}
+
+async updateConfiguracionTienda(configuracion: Partial<ConfiguracionTienda>): Promise<ConfiguracionTienda> {
+  const { data, error } = await this.supabase
+    .from('configuracion_tienda')
+    .update({
+      ...configuracion,
+      actualizado_en: new Date().toISOString()
+    })
+    .eq('id', configuracion.id)
+    .select()
+    .single();
+  
+  if (error) {
+    console.error('Error actualizando configuración:', error);
+    throw new Error('No tienes permisos para modificar la configuración');
+  }
+  
+  return data;
+}
+
+private getConfiguracionPorDefecto(): ConfiguracionTienda {
+  return {
+    id: 'default',
+    nombre_tienda: 'Pastelería Dulce Arte',
+    direccion: 'Av. Principal #123, Centro',
+    telefono: '555-123-4567',
+    rfc: 'XAXX010101000',
+    lema: 'Los mejores pasteles de la ciudad',
+    mensaje_ticket: '¡Gracias por su compra! Vuelva pronto.',
+    creado_en: new Date().toISOString(),
+    actualizado_en: new Date().toISOString()
+  };
+}
+
 }
